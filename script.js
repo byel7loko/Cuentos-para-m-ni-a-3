@@ -568,6 +568,8 @@ function limpiarFormulario() {
 
 async function guardarHistoria() {
 
+    alert("La función guardarHistoria sí está funcionando.");
+
     const tipo =
         document.getElementById("tipoHistoria").value;
 
