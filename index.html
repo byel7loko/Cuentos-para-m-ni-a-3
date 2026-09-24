@@ -1,1 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Mi Libro de Historias</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========================================
+         PORTADA
+    ========================================== -->
+
+    <section id="portada" class="pantalla activa">
+
+        <div class="portada-contenido">
+
+            <div class="decoracion-libro">
+                📖
+            </div>
+
+            <p class="pequeno-titulo">
+                MI LIBRO
+            </p>
+
+            <h1>
+                Cuentos<br>
+                y Poemas
+            </h1>
+
+            <p class="subtitulo">
+                Un lugar para guardar historias,
+                sentimientos y palabras.
+            </p>
+
+            <button class="boton-principal" onclick="abrirBiblioteca()">
+                Abrir el libro
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         BIBLIOTECA
+    ========================================== -->
+
+    <section id="biblioteca" class="pantalla">
+
+        <header class="encabezado">
+
+            <div>
+                <p class="etiqueta">MI BIBLIOTECA</p>
+
+                <h2>
+                    Mis historias
+                </h2>
+            </div>
+
+            <button
+                class="boton-icono"
+                onclick="volverPortada()"
+                aria-label="Volver"
+            >
+                🏠
+            </button>
+
+        </header>
+
+
+        <!-- ESTADÍSTICAS -->
+
+        <div class="estadisticas">
+
+            <div class="estadistica">
+                <strong id="cantidadCuentos">0</strong>
+                <span>Cuentos</span>
+            </div>
+
+            <div class="estadistica">
+                <strong id="cantidadPoemas">0</strong>
+                <span>Poemas</span>
+            </div>
+
+            <div class="estadistica">
+                <strong id="cantidadTotal">0</strong>
+                <span>Historias</span>
+            </div>
+
+        </div>
+
+
+        <!-- BUSCADOR -->
+
+        <div class="buscador">
+
+            <span>🔎</span>
+
+            <input
+                type="text"
+                id="busqueda"
+                placeholder="Buscar una historia..."
+                oninput="buscarHistorias()"
+            >
+
+        </div>
+
+
+        <!-- BOTÓN AGREGAR -->
+
+        <button
+            class="boton-agregar"
+            onclick="abrirFormulario()"
+        >
+            <span>＋</span>
+            Agregar historia
+        </button>
+
+
+        <!-- CUENTOS -->
+
+        <div class="seccion-biblioteca">
+
+            <div class="titulo-seccion">
+                <h3>📚 Cuentos</h3>
+            </div>
+
+            <div
+                id="listaCuentos"
+                class="lista-historias"
+            ></div>
+
+        </div>
+
+
+        <!-- POEMAS -->
+
+        <div class="seccion-biblioteca">
+
+            <div class="titulo-seccion">
+                <h3>🌙 Poemas</h3>
+            </div>
+
+            <div
+                id="listaPoemas"
+                class="lista-historias"
+            ></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         LECTOR
+    ========================================== -->
+
+    <section id="lector" class="pantalla">
+
+        <header class="lector-header">
+
+            <button
+                class="boton-icono"
+                onclick="volverBiblioteca()"
+            >
+                ←
+            </button>
+
+            <div class="lector-tipo" id="lectorTipo">
+                CUENTO
+            </div>
+
+            <button
+                class="boton-icono"
+                onclick="compartirHistoria()"
+            >
+                ↗️
+            </button>
+
+        </header>
+
+
+        <main class="libro-lector">
+
+            <div class="pagina-libro">
+
+                <div class="numero-pagina">
+                    Página <span id="numeroPagina">1</span>
+                </div>
+
+                <h1 id="lectorTitulo">
+                    Título
+                </h1>
+
+                <p
+                    id="lectorAutor"
+                    class="autor"
+                >
+                    Autor
+                </p>
+
+                <div
+                    id="lectorContenido"
+                    class="contenido-historia"
+                ></div>
+
+            </div>
+
+        </main>
+
+
+        <!-- CONTROLES -->
+
+        <div class="controles-lector">
+
+            <button
+                id="botonAnterior"
+                onclick="paginaAnterior()"
+            >
+                ← Anterior
+            </button>
+
+            <span id="contadorPaginas">
+                1 / 1
+            </span>
+
+            <button
+                id="botonSiguiente"
+                onclick="paginaSiguiente()"
+            >
+                Siguiente →
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         FORMULARIO PARA AGREGAR HISTORIA
+    ========================================== -->
+
+    <section id="formulario" class="pantalla">
+
+        <header class="encabezado">
+
+            <div>
+                <p class="etiqueta">
+                    NUEVA HISTORIA
+                </p>
+
+                <h2>
+                    Agregar contenido
+                </h2>
+            </div>
+
+            <button
+                class="boton-icono"
+                onclick="volverBiblioteca()"
+            >
+                ←
+            </button>
+
+        </header>
+
+
+        <main class="formulario-contenido">
+
+            <label for="tipoHistoria">
+                Tipo
+            </label>
+
+            <select id="tipoHistoria">
+
+                <option value="cuento">
+                    📚 Cuento
+                </option>
+
+                <option value="poema">
+                    🌙 Poema
+                </option>
+
+            </select>
+
+
+            <label for="tituloHistoria">
+                Título
+            </label>
+
+            <input
+                type="text"
+                id="tituloHistoria"
+                placeholder="Escribe el título..."
+            >
+
+
+            <label for="autorHistoria">
+                Autor
+            </label>
+
+            <input
+                type="text"
+                id="autorHistoria"
+                placeholder="Nombre del autor..."
+            >
+
+
+            <label for="descripcionHistoria">
+                Descripción
+            </label>
+
+            <textarea
+                id="descripcionHistoria"
+                rows="3"
+                placeholder="Una pequeña descripción..."
+            ></textarea>
+
+
+            <label for="textoHistoria">
+                Historia o poema
+            </label>
+
+            <textarea
+                id="textoHistoria"
+                rows="12"
+                placeholder="Escribe aquí el contenido..."
+            ></textarea>
+
+
+            <div class="botones-formulario">
+
+                <button
+                    class="boton-secundario"
+                    onclick="volverBiblioteca()"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    class="boton-principal"
+                    onclick="guardarHistoria()"
+                >
+                    Guardar
+                </button>
+
+            </div>
+
+        </main>
+
+    </section>
+
+
+    <!-- =========================================
+         MENSAJE
+    ========================================== -->
+
+    <div
+        id="mensaje"
+        class="mensaje"
+    ></div>
+
+
+    <!-- =========================================
+         JAVASCRIPT
+    ========================================== -->
+
+    <script src="script.js"></script>
+
+</body>
+  </html>
