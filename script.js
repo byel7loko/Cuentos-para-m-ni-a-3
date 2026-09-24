@@ -1,30 +1,22 @@
 /* =========================================================
-   MI LIBRO DE HISTORIAS
-   CONEXIÓN CON SUPABASE
-========================================================= */
-
-
-/* =========================================================
-   1. CONFIGURACIÓN DE SUPABASE
+   CONFIGURACIÓN DE SUPABASE
 ========================================================= */
 
 const SUPABASE_URL = "https://aiqllqehzmlmimqcqffn.supabase.co";
 
 /*
-   ========================================================
-   PEGA AQUÍ TU CLAVE PÚBLICA DE SUPABASE
-   ========================================================
+   PEGA AQUÍ TU CLAVE PÚBLICA
 
    Ejemplo:
-
-   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIs...";
-
-   IMPORTANTE:
-   Usa la Publishable key / anon.
-   NO uses service_role ni Secret key.
+   const SUPABASE_KEY = "sb_publishable_...";
 */
-const SUPABASE_KEY =sb_publishable_BUs9meQK3P0kAMM2R5yeNQ_QnGvup9X
 
+const SUPABASE_KEY = sb_publishable_BUs9meQK3P0kAMM2R5yeNQ_QnGvup9X
+
+
+/* =========================================================
+   CONEXIÓN CON SUPABASE
+========================================================= */
 
 const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
@@ -33,35 +25,31 @@ const supabaseClient = window.supabase.createClient(
 
 
 /* =========================================================
-   2. VARIABLES
+   VARIABLES GLOBALES
 ========================================================= */
 
 let historias = [];
-
 let historiasFiltradas = [];
 
 let historiaActual = null;
 
-let paginaActual = 1;
-
 let paginasActuales = [];
+let paginaActual = 0;
 
 
 /* =========================================================
-   3. INICIAR APLICACIÓN
+   INICIAR APLICACIÓN
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
 
-    console.log("Aplicación iniciada");
-
-    await cargarHistorias();
+    console.log("Aplicación iniciada.");
 
 });
 
 
 /* =========================================================
-   4. NAVEGACIÓN
+   CAMBIAR DE PANTALLA
 ========================================================= */
 
 function mostrarPantalla(id) {
@@ -81,6 +69,10 @@ function mostrarPantalla(id) {
 }
 
 
+/* =========================================================
+   PORTADA
+========================================================= */
+
 function abrirBiblioteca() {
 
     mostrarPantalla("biblioteca");
@@ -90,6 +82,10 @@ function abrirBiblioteca() {
 }
 
 
+/* =========================================================
+   VOLVER A LA PORTADA
+========================================================= */
+
 function volverPortada() {
 
     mostrarPantalla("portada");
@@ -97,24 +93,28 @@ function volverPortada() {
 }
 
 
+/* =========================================================
+   VOLVER A LA BIBLIOTECA
+========================================================= */
+
 function volverBiblioteca() {
 
     mostrarPantalla("biblioteca");
 
-    limpiarFormulario();
+    cargarHistorias();
 
 }
 
 
 /* =========================================================
-   5. CARGAR HISTORIAS DESDE SUPABASE
+   CARGAR HISTORIAS DESDE SUPABASE
 ========================================================= */
 
 async function cargarHistorias() {
 
-    try {
+    mostrarMensaje("Cargando historias...", "info");
 
-        mostrarMensaje("Cargando historias...");
+    try {
 
         const { data, error } = await supabaseClient
             .from("historias")
@@ -123,18 +123,17 @@ async function cargarHistorias() {
                 ascending: false
             });
 
-
         if (error) {
 
-            console.error("Error al cargar historias:", error);
+            console.error("Error cargando historias:", error);
 
             mostrarMensaje(
-                "No se pudieron cargar las historias."
+                "No se pudieron cargar las historias.",
+                "error"
             );
 
             return;
         }
-
 
         historias = data || [];
 
@@ -146,13 +145,13 @@ async function cargarHistorias() {
 
         ocultarMensaje();
 
-
     } catch (error) {
 
         console.error(error);
 
         mostrarMensaje(
-            "Ocurrió un error al conectar con Supabase."
+            "Ocurrió un error al conectar con Supabase.",
+            "error"
         );
 
     }
@@ -161,54 +160,49 @@ async function cargarHistorias() {
 
 
 /* =========================================================
-   6. RENDERIZAR HISTORIAS
+   MOSTRAR HISTORIAS
 ========================================================= */
 
 function renderizarHistorias() {
 
-    const listaCuentos =
-        document.getElementById("listaCuentos");
-
-    const listaPoemas =
-        document.getElementById("listaPoemas");
-
+    const listaCuentos = document.getElementById("listaCuentos");
+    const listaPoemas = document.getElementById("listaPoemas");
 
     if (!listaCuentos || !listaPoemas) {
         return;
     }
 
-
     listaCuentos.innerHTML = "";
-
     listaPoemas.innerHTML = "";
 
-
     const cuentos = historiasFiltradas.filter(
-        historia =>
-            String(historia.tipo).toLowerCase() === "cuento"
+        historia => historia.tipo === "cuento"
     );
-
 
     const poemas = historiasFiltradas.filter(
-        historia =>
-            String(historia.tipo).toLowerCase() === "poema"
+        historia => historia.tipo === "poema"
     );
 
+
+    /* =========================================
+       CUENTOS
+    ========================================= */
 
     if (cuentos.length === 0) {
 
         listaCuentos.innerHTML = `
             <div class="sin-historias">
-                <p>📖 No hay cuentos todavía.</p>
+                <p>📚</p>
+                <span>No hay cuentos todavía.</span>
             </div>
         `;
 
     } else {
 
-        cuentos.forEach(cuento => {
+        cuentos.forEach(historia => {
 
             listaCuentos.appendChild(
-                crearTarjetaHistoria(cuento)
+                crearTarjetaHistoria(historia)
             );
 
         });
@@ -216,20 +210,25 @@ function renderizarHistorias() {
     }
 
 
+    /* =========================================
+       POEMAS
+    ========================================= */
+
     if (poemas.length === 0) {
 
         listaPoemas.innerHTML = `
             <div class="sin-historias">
-                <p>🌙 No hay poemas todavía.</p>
+                <p>🌙</p>
+                <span>No hay poemas todavía.</span>
             </div>
         `;
 
     } else {
 
-        poemas.forEach(poema => {
+        poemas.forEach(historia => {
 
             listaPoemas.appendChild(
-                crearTarjetaHistoria(poema)
+                crearTarjetaHistoria(historia)
             );
 
         });
@@ -240,7 +239,7 @@ function renderizarHistorias() {
 
 
 /* =========================================================
-   7. CREAR TARJETA
+   CREAR TARJETA DE HISTORIA
 ========================================================= */
 
 function crearTarjetaHistoria(historia) {
@@ -249,47 +248,40 @@ function crearTarjetaHistoria(historia) {
 
     tarjeta.className = "tarjeta-historia";
 
+    const tipoTexto =
+        historia.tipo === "poema"
+            ? "🌙 Poema"
+            : "📚 Cuento";
 
     const titulo =
-        escaparHTML(historia.titulo || "Sin título");
+        historia.titulo || "Sin título";
 
     const autor =
-        escaparHTML(historia.autor || "Autor desconocido");
+        historia.autor || "Autor desconocido";
 
     const descripcion =
-        escaparHTML(
-            historia.descripcion ||
-            "Sin descripción."
-        );
+        historia.descripcion || "Sin descripción.";
 
 
     tarjeta.innerHTML = `
 
         <div class="tarjeta-contenido">
 
-            <div class="tarjeta-icono">
-                ${
-                    String(historia.tipo).toLowerCase() === "poema"
-                        ? "🌙"
-                        : "📚"
-                }
+            <div class="tarjeta-tipo">
+                ${tipoTexto}
             </div>
 
-            <div class="tarjeta-texto">
+            <h4>
+                ${escaparHTML(titulo)}
+            </h4>
 
-                <h4>
-                    ${titulo}
-                </h4>
+            <p class="tarjeta-autor">
+                ${escaparHTML(autor)}
+            </p>
 
-                <p class="tarjeta-autor">
-                    ${autor}
-                </p>
-
-                <p class="tarjeta-descripcion">
-                    ${descripcion}
-                </p>
-
-            </div>
+            <p class="tarjeta-descripcion">
+                ${escaparHTML(descripcion)}
+            </p>
 
         </div>
 
@@ -297,33 +289,17 @@ function crearTarjetaHistoria(historia) {
             class="boton-leer"
             type="button"
         >
-            Leer
+            Leer →
         </button>
 
     `;
 
 
-    tarjeta
-        .querySelector(".boton-leer")
-        .addEventListener("click", () => {
+    tarjeta.addEventListener("click", () => {
 
-            abrirHistoria(historia);
+        abrirHistoria(historia);
 
-        });
-
-
-    tarjeta
-        .addEventListener("click", evento => {
-
-            if (
-                evento.target.closest(".boton-leer")
-            ) {
-                return;
-            }
-
-            abrirHistoria(historia);
-
-        });
+    });
 
 
     return tarjeta;
@@ -332,55 +308,52 @@ function crearTarjetaHistoria(historia) {
 
 
 /* =========================================================
-   8. ABRIR HISTORIA
+   ABRIR UNA HISTORIA
 ========================================================= */
 
 function abrirHistoria(historia) {
 
     historiaActual = historia;
 
-    paginaActual = 1;
-
-
-    const tipo =
+    const lectorTipo =
         document.getElementById("lectorTipo");
 
-    const titulo =
+    const lectorTitulo =
         document.getElementById("lectorTitulo");
 
-    const autor =
+    const lectorAutor =
         document.getElementById("lectorAutor");
 
 
-    if (tipo) {
+    if (lectorTipo) {
 
-        tipo.textContent =
-            String(historia.tipo).toLowerCase() === "poema"
+        lectorTipo.textContent =
+            historia.tipo === "poema"
                 ? "POEMA"
                 : "CUENTO";
 
     }
 
 
-    if (titulo) {
+    if (lectorTitulo) {
 
-        titulo.textContent =
+        lectorTitulo.textContent =
             historia.titulo || "Sin título";
 
     }
 
 
-    if (autor) {
+    if (lectorAutor) {
 
-        autor.textContent =
-            historia.autor || "Autor desconocido";
+        lectorAutor.textContent =
+            historia.autor
+                ? `Por ${historia.autor}`
+                : "Autor desconocido";
 
     }
 
 
     prepararPaginas(historia.texto || "");
-
-    mostrarPagina();
 
     mostrarPantalla("lector");
 
@@ -388,25 +361,21 @@ function abrirHistoria(historia) {
 
 
 /* =========================================================
-   9. PREPARAR PÁGINAS
+   PREPARAR PÁGINAS
 ========================================================= */
 
 function prepararPaginas(texto) {
 
-    if (!texto.trim()) {
-
-        paginasActuales = [
-            "Esta historia todavía no tiene contenido."
-        ];
-
-        return;
-
-    }
-
-
     /*
-       Cada salto de línea doble se considera
-       una nueva página.
+       Separamos las páginas usando líneas vacías.
+
+       Ejemplo:
+
+       Página 1
+
+       Página 2
+
+       Página 3
     */
 
     paginasActuales = texto
@@ -417,15 +386,20 @@ function prepararPaginas(texto) {
 
     if (paginasActuales.length === 0) {
 
-        paginasActuales = [texto];
+        paginasActuales = [""];
 
     }
+
+
+    paginaActual = 0;
+
+    mostrarPagina();
 
 }
 
 
 /* =========================================================
-   10. MOSTRAR PÁGINA
+   MOSTRAR PÁGINA
 ========================================================= */
 
 function mostrarPagina() {
@@ -433,10 +407,10 @@ function mostrarPagina() {
     const contenido =
         document.getElementById("lectorContenido");
 
-    const numero =
+    const numeroPagina =
         document.getElementById("numeroPagina");
 
-    const contador =
+    const contadorPaginas =
         document.getElementById("contadorPaginas");
 
     const botonAnterior =
@@ -446,37 +420,31 @@ function mostrarPagina() {
         document.getElementById("botonSiguiente");
 
 
-    if (!paginasActuales.length) {
+    if (!contenido) {
         return;
     }
 
 
-    const indice = paginaActual - 1;
-
-    const pagina =
-        paginasActuales[indice] || "";
+    const texto =
+        paginasActuales[paginaActual] || "";
 
 
-    if (contenido) {
-
-        contenido.innerHTML =
-            convertirTextoHTML(pagina);
-
-    }
+    contenido.innerHTML =
+        convertirTextoHTML(texto);
 
 
-    if (numero) {
+    if (numeroPagina) {
 
-        numero.textContent =
-            paginaActual;
+        numeroPagina.textContent =
+            paginaActual + 1;
 
     }
 
 
-    if (contador) {
+    if (contadorPaginas) {
 
-        contador.textContent =
-            `${paginaActual} / ${paginasActuales.length}`;
+        contadorPaginas.textContent =
+            `${paginaActual + 1} / ${paginasActuales.length}`;
 
     }
 
@@ -484,7 +452,7 @@ function mostrarPagina() {
     if (botonAnterior) {
 
         botonAnterior.disabled =
-            paginaActual <= 1;
+            paginaActual === 0;
 
     }
 
@@ -492,7 +460,7 @@ function mostrarPagina() {
     if (botonSiguiente) {
 
         botonSiguiente.disabled =
-            paginaActual >= paginasActuales.length;
+            paginaActual === paginasActuales.length - 1;
 
     }
 
@@ -500,46 +468,44 @@ function mostrarPagina() {
 
 
 /* =========================================================
-   11. PÁGINA ANTERIOR
+   PÁGINA ANTERIOR
 ========================================================= */
 
 function paginaAnterior() {
 
-    if (paginaActual <= 1) {
-        return;
+    if (paginaActual > 0) {
+
+        paginaActual--;
+
+        mostrarPagina();
+
     }
-
-
-    paginaActual--;
-
-    mostrarPagina();
 
 }
 
 
 /* =========================================================
-   12. PÁGINA SIGUIENTE
+   PÁGINA SIGUIENTE
 ========================================================= */
 
 function paginaSiguiente() {
 
     if (
-        paginaActual >=
-        paginasActuales.length
+        paginaActual <
+        paginasActuales.length - 1
     ) {
-        return;
+
+        paginaActual++;
+
+        mostrarPagina();
+
     }
-
-
-    paginaActual++;
-
-    mostrarPagina();
 
 }
 
 
 /* =========================================================
-   13. FORMULARIO
+   ABRIR FORMULARIO
 ========================================================= */
 
 function abrirFormulario() {
@@ -550,6 +516,10 @@ function abrirFormulario() {
 
 }
 
+
+/* =========================================================
+   LIMPIAR FORMULARIO
+========================================================= */
 
 function limpiarFormulario() {
 
@@ -593,7 +563,7 @@ function limpiarFormulario() {
 
 
 /* =========================================================
-   14. GUARDAR HISTORIA
+   GUARDAR HISTORIA
 ========================================================= */
 
 async function guardarHistoria() {
@@ -614,23 +584,31 @@ async function guardarHistoria() {
         document.getElementById("textoHistoria").value.trim();
 
 
-    /* VALIDACIONES */
+    /* =========================================
+       VALIDAR TÍTULO
+    ========================================= */
 
     if (!titulo) {
 
         mostrarMensaje(
-            "Escribe un título."
+            "Escribe un título.",
+            "error"
         );
 
         return;
 
     }
 
+
+    /* =========================================
+       VALIDAR CONTENIDO
+    ========================================= */
 
     if (!texto) {
 
         mostrarMensaje(
-            "Escribe el contenido de la historia."
+            "Escribe el contenido de la historia.",
+            "error"
         );
 
         return;
@@ -638,10 +616,49 @@ async function guardarHistoria() {
     }
 
 
+    mostrarMensaje(
+        "Guardando historia...",
+        "info"
+    );
+
+
     try {
 
-        mostrarMensaje("Guardando historia...");
+        /* =========================================
+           COMPROBAR USUARIO
+        ========================================= */
 
+        const {
+            data: {
+                user
+            }
+        } = await supabaseClient.auth.getUser();
+
+
+        /*
+           La tabla está configurada para que
+           cada historia tenga el ID de su propietario.
+        */
+
+        if (!user) {
+
+            mostrarMensaje(
+                "Necesitas iniciar sesión para guardar historias.",
+                "error"
+            );
+
+            console.warn(
+                "No hay usuario autenticado."
+            );
+
+            return;
+
+        }
+
+
+        /* =========================================
+           INSERTAR EN SUPABASE
+        ========================================= */
 
         const { data, error } =
             await supabaseClient
@@ -652,36 +669,28 @@ async function guardarHistoria() {
                         titulo: titulo,
                         autor: autor,
                         descripcion: descripcion,
-                        texto: texto
+                        texto: texto,
+                        owner_id: user.id
                     }
                 ])
                 .select();
 
 
+        /* =========================================
+           COMPROBAR ERROR
+        ========================================= */
+
         if (error) {
 
             console.error(
-                "Error al guardar:",
+                "Error guardando historia:",
                 error
             );
 
-
-            if (
-                error.message &&
-                error.message.toLowerCase().includes("row-level security")
-            ) {
-
-                mostrarMensaje(
-                    "Supabase bloqueó el guardado por las políticas RLS."
-                );
-
-            } else {
-
-                mostrarMensaje(
-                    "No se pudo guardar la historia."
-                );
-
-            }
+            mostrarMensaje(
+                "No se pudo guardar la historia.",
+                "error"
+            );
 
             return;
 
@@ -689,34 +698,45 @@ async function guardarHistoria() {
 
 
         console.log(
-            "Historia guardada:",
+            "Historia guardada correctamente:",
             data
         );
 
 
+        /* =========================================
+           ÉXITO
+        ========================================= */
+
         mostrarMensaje(
-            "¡Historia guardada correctamente! 📖"
+            "¡Historia guardada correctamente! 📖",
+            "success"
         );
 
 
-        await cargarHistorias();
+        limpiarFormulario();
 
 
         setTimeout(() => {
 
+            ocultarMensaje();
+
             mostrarPantalla("biblioteca");
 
-            ocultarMensaje();
+            cargarHistorias();
 
         }, 1000);
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Error inesperado:",
+            error
+        );
 
         mostrarMensaje(
-            "Ocurrió un error al guardar."
+            "Ocurrió un error al guardar la historia.",
+            "error"
         );
 
     }
@@ -725,7 +745,7 @@ async function guardarHistoria() {
 
 
 /* =========================================================
-   15. BUSCAR HISTORIAS
+   BUSCAR HISTORIAS
 ========================================================= */
 
 function buscarHistorias() {
@@ -733,19 +753,18 @@ function buscarHistorias() {
     const input =
         document.getElementById("busqueda");
 
-
     if (!input) {
         return;
     }
 
 
-    const termino =
+    const busqueda =
         input.value
             .trim()
             .toLowerCase();
 
 
-    if (!termino) {
+    if (!busqueda) {
 
         historiasFiltradas =
             [...historias];
@@ -756,31 +775,27 @@ function buscarHistorias() {
             historias.filter(historia => {
 
                 const titulo =
-                    String(
-                        historia.titulo || ""
-                    ).toLowerCase();
+                    (historia.titulo || "")
+                        .toLowerCase();
 
                 const autor =
-                    String(
-                        historia.autor || ""
-                    ).toLowerCase();
+                    (historia.autor || "")
+                        .toLowerCase();
 
                 const descripcion =
-                    String(
-                        historia.descripcion || ""
-                    ).toLowerCase();
+                    (historia.descripcion || "")
+                        .toLowerCase();
 
                 const texto =
-                    String(
-                        historia.texto || ""
-                    ).toLowerCase();
+                    (historia.texto || "")
+                        .toLowerCase();
 
 
                 return (
-                    titulo.includes(termino) ||
-                    autor.includes(termino) ||
-                    descripcion.includes(termino) ||
-                    texto.includes(termino)
+                    titulo.includes(busqueda) ||
+                    autor.includes(busqueda) ||
+                    descripcion.includes(busqueda) ||
+                    texto.includes(busqueda)
                 );
 
             });
@@ -794,28 +809,10 @@ function buscarHistorias() {
 
 
 /* =========================================================
-   16. ESTADÍSTICAS
+   ACTUALIZAR ESTADÍSTICAS
 ========================================================= */
 
 function actualizarEstadisticas() {
-
-    const cuentos =
-        historias.filter(
-            historia =>
-                String(historia.tipo).toLowerCase() === "cuento"
-        ).length;
-
-
-    const poemas =
-        historias.filter(
-            historia =>
-                String(historia.tipo).toLowerCase() === "poema"
-        ).length;
-
-
-    const total =
-        historias.length;
-
 
     const cantidadCuentos =
         document.getElementById("cantidadCuentos");
@@ -825,6 +822,20 @@ function actualizarEstadisticas() {
 
     const cantidadTotal =
         document.getElementById("cantidadTotal");
+
+
+    const cuentos =
+        historias.filter(
+            historia =>
+                historia.tipo === "cuento"
+        ).length;
+
+
+    const poemas =
+        historias.filter(
+            historia =>
+                historia.tipo === "poema"
+        ).length;
 
 
     if (cantidadCuentos) {
@@ -846,7 +857,7 @@ function actualizarEstadisticas() {
     if (cantidadTotal) {
 
         cantidadTotal.textContent =
-            total;
+            historias.length;
 
     }
 
@@ -854,7 +865,7 @@ function actualizarEstadisticas() {
 
 
 /* =========================================================
-   17. COMPARTIR HISTORIA
+   COMPARTIR HISTORIA
 ========================================================= */
 
 async function compartirHistoria() {
@@ -864,40 +875,37 @@ async function compartirHistoria() {
     }
 
 
+    const titulo =
+        historiaActual.titulo ||
+        "Mi historia";
+
+
     const texto =
-        `${historiaActual.titulo || "Historia"}
-
-${historiaActual.autor || ""}
-
-${historiaActual.texto || ""}`;
+        historiaActual.descripcion ||
+        "Una historia de mi biblioteca.";
 
 
     try {
 
-        if (
-            navigator.share
-        ) {
+        if (navigator.share) {
 
             await navigator.share({
 
-                title:
-                    historiaActual.titulo ||
-                    "Mi historia",
+                title: titulo,
 
-                text:
-                    texto
+                text: texto
 
             });
 
         } else {
 
             await navigator.clipboard.writeText(
-                texto
+                `${titulo}\n\n${texto}`
             );
 
-
             mostrarMensaje(
-                "Historia copiada al portapapeles."
+                "Texto copiado para compartir.",
+                "success"
             );
 
         }
@@ -905,7 +913,7 @@ ${historiaActual.texto || ""}`;
     } catch (error) {
 
         console.log(
-            "Compartir cancelado:",
+            "Compartir cancelado.",
             error
         );
 
@@ -915,58 +923,60 @@ ${historiaActual.texto || ""}`;
 
 
 /* =========================================================
-   18. MENSAJES
+   MOSTRAR MENSAJE
 ========================================================= */
 
-function mostrarMensaje(texto) {
+function mostrarMensaje(
+    texto,
+    tipo = "info"
+) {
 
     const mensaje =
         document.getElementById("mensaje");
-
 
     if (!mensaje) {
         return;
     }
 
 
-    mensaje.textContent = texto;
+    mensaje.textContent =
+        texto;
 
-    mensaje.classList.add("mostrar");
+
+    mensaje.className =
+        `mensaje ${tipo}`;
 
 
-    clearTimeout(
-        window.__mensajeTimeout
+    mensaje.classList.add(
+        "visible"
     );
-
-
-    window.__mensajeTimeout =
-        setTimeout(() => {
-
-            ocultarMensaje();
-
-        }, 4000);
 
 }
 
+
+/* =========================================================
+   OCULTAR MENSAJE
+========================================================= */
 
 function ocultarMensaje() {
 
     const mensaje =
         document.getElementById("mensaje");
 
-
     if (!mensaje) {
         return;
     }
 
 
-    mensaje.classList.remove("mostrar");
+    mensaje.classList.remove(
+        "visible"
+    );
 
 }
 
 
 /* =========================================================
-   19. CONVERTIR TEXTO
+   CONVERTIR TEXTO A HTML
 ========================================================= */
 
 function convertirTextoHTML(texto) {
@@ -978,26 +988,16 @@ function convertirTextoHTML(texto) {
 
 
 /* =========================================================
-   20. SEGURIDAD
+   ESCAPAR HTML
 ========================================================= */
 
 function escaparHTML(texto) {
 
-    const div =
-        document.createElement("div");
-
-
-    div.textContent =
-        texto == null
-            ? ""
-            : String(texto);
-
-
-    return div.innerHTML;
+    return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;"); 
 
 }
-
-
-/* =========================================================
-   FIN
-========================================================= */
