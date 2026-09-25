@@ -568,8 +568,186 @@ function limpiarFormulario() {
 
 async function guardarHistoria() {
 
-    alert("La función guardarHistoria sí está funcionando.");
+    console.log("1. guardarHistoria inició");
 
+    const tipo = document.getElementById("tipoHistoria").value;
+    const titulo = document.getElementById("tituloHistoria").value.trim();
+    const autor = document.getElementById("autorHistoria").value.trim();
+    const descripcion = document.getElementById("descripcionHistoria").value.trim();
+    const texto = document.getElementById("textoHistoria").value.trim();
+
+    console.log("2. Datos obtenidos:", {
+        tipo,
+        titulo,
+        autor,
+        descripcion,
+        texto
+    });
+
+
+    if (!titulo) {
+
+        mostrarMensaje(
+            "Escribe un título.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!texto) {
+
+        mostrarMensaje(
+            "Escribe el contenido de la historia.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    mostrarMensaje(
+        "Guardando historia...",
+        "info"
+    );
+
+
+    console.log("3. Intentando comprobar usuario...");
+
+
+    try {
+
+        const {
+            data: {
+                user
+            },
+            error: userError
+        } = await supabaseClient.auth.getUser();
+
+
+        console.log("4. Resultado usuario:", {
+            user,
+            userError
+        });
+
+
+        if (userError) {
+
+            console.error(
+                "Error obteniendo usuario:",
+                userError
+            );
+
+            mostrarMensaje(
+                "Error al comprobar el usuario.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!user) {
+
+            console.log(
+                "5. No hay usuario autenticado."
+            );
+
+            mostrarMensaje(
+                "Necesitas iniciar sesión para guardar historias.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "6. Usuario encontrado. Intentando guardar..."
+        );
+
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("historias")
+            .insert([
+                {
+                    tipo: tipo,
+                    titulo: titulo,
+                    autor: autor,
+                    descripcion: descripcion,
+                    texto: texto,
+                    owner_id: user.id
+                }
+            ])
+            .select();
+
+
+        console.log("7. Resultado del guardado:", {
+            data,
+            error
+        });
+
+
+        if (error) {
+
+            console.error(
+                "ERROR DE SUPABASE:",
+                error
+            );
+
+            mostrarMensaje(
+                "Supabase rechazó el guardado: " + error.message,
+                "error"
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "8. ¡Historia guardada correctamente!"
+        );
+
+
+        mostrarMensaje(
+            "¡Historia guardada correctamente! 📖",
+            "success"
+        );
+
+
+        limpiarFormulario();
+
+
+        setTimeout(() => {
+
+            ocultarMensaje();
+
+            mostrarPantalla("biblioteca");
+
+            cargarHistorias();
+
+        }, 1000);
+
+
+    } catch (error) {
+
+        console.error(
+            "ERROR GENERAL:",
+            error
+        );
+
+        mostrarMensaje(
+            "Error: " + error.message,
+            "error"
+        );
+
+    }
+
+           }
     const tipo =
         document.getElementById("tipoHistoria").value;
 
